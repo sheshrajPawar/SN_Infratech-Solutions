@@ -5,11 +5,11 @@ const SHEET_TABS = {
   },
   apply: {
     name: 'Apply Jobs',
-    headers: ['Timestamp', 'Language', 'Full Name', 'Mobile', 'Location', 'Searched Role', 'Suggested Job', 'Description']
+    headers: ['Timestamp', 'Source Form', 'Language', 'Full Name', 'Mobile', 'Location', 'Searched Role', 'Suggested Job', 'Description']
   },
   employees: {
     name: 'Request Employees',
-    headers: ['Timestamp', 'Language', 'Full Name', 'Mobile', 'Job Type', 'Number of Employees']
+    headers: ['Timestamp', 'Source Form', 'Language', 'Company Name', 'Mobile', 'Job Type', 'Number of Employees']
   }
 };
 
@@ -74,6 +74,8 @@ function getOrCreateSheet_(sheetName, headers) {
 
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
+  } else {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
 
   return sheet;
@@ -90,17 +92,13 @@ function applySheetValidation_(sheet, formType) {
   }
 
   if (formType === 'apply') {
-    setTextValidation_(sheet, 3, maxRows);
-    setPhoneValidation_(sheet, 4, maxRows);
-    setTextValidation_(sheet, 5, maxRows);
-    setTextValidation_(sheet, 6, maxRows);
+    setTextValidation_(sheet, 4, maxRows);
+    setPhoneValidation_(sheet, 5, maxRows);
     return;
   }
 
-  setTextValidation_(sheet, 3, maxRows);
-  setPhoneValidation_(sheet, 4, maxRows);
-  setTextValidation_(sheet, 5, maxRows);
-  setEmployeeCountValidation_(sheet, 6, maxRows);
+  setPhoneValidation_(sheet, 5, maxRows);
+  setEmployeeCountValidation_(sheet, 7, maxRows);
 }
 
 function setTextValidation_(sheet, column, maxRows) {
@@ -169,21 +167,23 @@ function validatePayload_(formType, fields) {
   }
 
   if (formType === 'apply') {
-    requireFields_(fields, ['fullName', 'mobile', 'location', 'description']);
+    requireFields_(fields, ['fullName', 'mobile', 'location', 'roleSearch']);
     requireText_(fields.fullName, 'Full name');
     requirePhone_(fields.mobile);
-    requireText_(fields.location, 'Location');
+    requireGeneralText_(fields.location, 'Location');
+    requireGeneralText_(fields.roleSearch, 'Searched role');
 
-    if (fields.roleSearch) {
-      requireText_(fields.roleSearch, 'Searched role');
+    if (isOtherJob_(fields.suggestedJob)) {
+      requireFields_(fields, ['description']);
+      requireGeneralText_(fields.description, 'Description');
     }
     return;
   }
 
-  requireFields_(fields, ['fullName', 'mobile', 'jobType', 'employeeCount']);
-  requireText_(fields.fullName, 'Full name');
+  requireFields_(fields, ['companyName', 'mobile', 'jobType', 'employeeCount']);
+  requireGeneralText_(fields.companyName, 'Company name');
   requirePhone_(fields.mobile);
-  requireText_(fields.jobType, 'Job type');
+  requireGeneralText_(fields.jobType, 'Job type');
   requireEmployeeCount_(fields.employeeCount);
 }
 
@@ -199,6 +199,16 @@ function requireText_(value, label) {
   if (!/^[\p{L}\s.'-]+$/u.test(String(value || '').trim())) {
     throw new Error(label + ' must contain letters only.');
   }
+}
+
+function requireGeneralText_(value, label) {
+  if (!/^[\p{L}\p{N}\s.,&'()/+-]+$/u.test(String(value || '').trim())) {
+    throw new Error(label + ' contains unsupported characters.');
+  }
+}
+
+function isOtherJob_(value) {
+  return /other jobs|अन्य जॉब्स/i.test(String(value || '').trim());
 }
 
 function requirePhone_(value) {
@@ -232,6 +242,7 @@ function buildRow_(formType, language, fields) {
   if (formType === 'apply') {
     return [
       timestamp,
+      'Apply for Jobs',
       language,
       fields.fullName || '',
       fields.mobile || '',
@@ -244,8 +255,9 @@ function buildRow_(formType, language, fields) {
 
   return [
     timestamp,
+    'Find Employees / Request for Employees',
     language,
-    fields.fullName || '',
+    fields.companyName || '',
     fields.mobile || '',
     fields.jobType || '',
     Number(fields.employeeCount || 0)

@@ -4,7 +4,8 @@ const ASSETS = {
   hero: '/assets/hero-dark.png',
   logo: '/assets/sn-logo.png',
   about: '/assets/about-business.png',
-  founder: '/assets/founder-placeholder.jpg'
+  founder: '/assets/founder-placeholder.jpg',
+  locationPin: '/assets/location-pin.png'
 };
 
 const address = 'Plot No - 982/34, Khata No - 375/1138, Hanuman Bazar, Kamakshya Nagar, Dhenkanal, Odisha - 759018';
@@ -33,6 +34,97 @@ const locationSuggestions = [
   'Mumbai, Maharashtra',
   'Delhi NCR',
   'Ahmedabad, Gujarat'
+];
+
+const jobRoles = [
+  'UI/UX Designer',
+  'Video Editor',
+  'Content Creator',
+  'Graphic Designer',
+  'Social Media Manager',
+  'Electrician',
+  'Automotive Technician',
+  'CNC Operator',
+  'Welder',
+  'Construction Supervisor',
+  'Doctor',
+  'Nurse',
+  'Physiotherapist',
+  'Medical Lab Technician',
+  'Pharmacist',
+  'Business Analyst',
+  'Digital Marketing Specialist',
+  'HR Recruiter / Talent Acquisition',
+  'Project Manager',
+  'Financial Analyst',
+  'Operations Manager',
+  'AI Engineer',
+  'Machine Learning Engineer',
+  'Data Analyst',
+  'Cybersecurity Analyst',
+  'Cloud Engineer',
+  'Full Stack Developer',
+  'DevOps Engineer',
+  'Product Manager',
+  'Scrum Master',
+  'AI Product Owner',
+  'Property Consultant',
+  'Real Estate Sales Executive',
+  'Insurance Advisor',
+  'Relationship Manager',
+  'Loan Sales Officer',
+  'Telecaller',
+  'Inside Sales Representative',
+  'Lead Generation Specialist',
+  'Business Development Executive (BDE)',
+  'Business Development Manager (BDM)',
+  'Account Manager',
+  'Enterprise Sales Manager',
+  'Store Sales Executive',
+  'Showroom Sales Associate',
+  'Fashion Sales Advisor',
+  'Content Writer',
+  'Copywriter',
+  'Graphic Marketing Designer',
+  'Video Marketing Creator',
+  'Site Engineer',
+  'Civil Engineer',
+  'Foreman',
+  'Surveyor',
+  'Safety Officer',
+  'Quality Inspector',
+  'Vendor Coordinator',
+  'Procurement Manager',
+  'Contracts Manager',
+  'Carpenter',
+  'Mason',
+  'Crane Operator',
+  'HVAC Technician',
+  'House Cleaner',
+  'Housekeeping Staff',
+  'Maid / Domestic Helper',
+  'Home Cook',
+  'Personal Cook',
+  'Kitchen Helper',
+  'Baby Sitter',
+  'Nanny',
+  'Care Giver',
+  'Patient Attendant',
+  'Live-in House Help',
+  'Domestic Manager',
+  'Housekeeping Associate',
+  'Facility Housekeeper',
+  'Security Guard',
+  'Security Supervisor',
+  'CCTV Operator',
+  'Fire Safety Officer',
+  'Cleaning Supervisor',
+  'Waste Management Staff',
+  'Apartment Manager',
+  'Facility Manager',
+  'Front Office Executive',
+  'Helpdesk Coordinator',
+  'Resident Relationship Executive'
 ];
 
 const copy = {
@@ -148,14 +240,14 @@ const copy = {
     employees: {
       title: 'REQUEST FOR EMPLOYEES',
       subtitle: 'Find the right employees for your business.',
-      fullName: 'Full name',
+      companyName: 'Company name',
       mobile: 'Mobile number',
       jobType: 'Type of Jobs',
       employeeCount: 'No. of employee',
       cancel: 'Cancel',
       confirm: 'Confirm',
       placeholders: {
-        name: 'Enter your full name',
+        companyName: 'Enter your company name',
         mobile: '7777777777',
         jobType: 'eg. sale & marketing',
         employeeCount: 'eg. 12'
@@ -168,7 +260,7 @@ const copy = {
       invalidEmail: 'Please enter a valid email address.',
       invalidEmployeeCount: 'Number of employees must be between 1 and 100.',
       missingUrl: 'Form endpoint is not configured yet. Add VITE_GOOGLE_SCRIPT_URL after deploying Google Apps Script.',
-      success: 'Thank you. Your details have been submitted.',
+      success: 'Submitted successfully. Our team will contact you soon.',
       error: 'Something went wrong. Please try again.'
     }
   },
@@ -284,14 +376,14 @@ const copy = {
     employees: {
       title: 'कर्मचारियों के लिए अनुरोध',
       subtitle: 'अपने व्यवसाय के लिए सही कर्मचारी खोजें।',
-      fullName: 'पूरा नाम',
+      companyName: 'कंपनी का नाम',
       mobile: 'मोबाइल नंबर',
       jobType: 'नौकरी का प्रकार',
       employeeCount: 'कर्मचारियों की संख्या',
       cancel: 'रद्द करें',
       confirm: 'कन्फर्म',
       placeholders: {
-        name: 'अपना पूरा नाम दर्ज करें',
+        companyName: 'अपनी कंपनी का नाम दर्ज करें',
         mobile: '7777777777',
         jobType: 'जैसे सेल्स और मार्केटिंग',
         employeeCount: 'जैसे 12'
@@ -304,7 +396,7 @@ const copy = {
       invalidEmail: 'कृपया सही ईमेल पता दर्ज करें।',
       invalidEmployeeCount: 'कर्मचारियों की संख्या 1 से 100 के बीच होनी चाहिए।',
       missingUrl: 'फॉर्म endpoint अभी सेट नहीं है। Google Apps Script deploy करने के बाद VITE_GOOGLE_SCRIPT_URL जोड़ें।',
-      success: 'धन्यवाद। आपकी जानकारी सबमिट हो गई है।',
+      success: 'सफलतापूर्वक सबमिट हो गया। हमारी टीम जल्द ही आपसे संपर्क करेगी।',
       error: 'कुछ गलत हुआ। कृपया फिर कोशिश करें।'
     }
   }
@@ -317,6 +409,7 @@ const iconPaths = {
   shield: 'M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z',
   gauge: 'M4 15a8 8 0 1 1 16 0M12 15l3-4',
   sliders: 'M5 7h14M5 17h14M8 5v4M16 15v4',
+  company: 'M3 21h18M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M9 8h1M13 8h1M9 12h1M13 12h1M9 16h1M13 16h1M18 21v-8h1a2 2 0 0 1 2 2v6',
   star: 'M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2-4.5-4.4 6.2-.9z',
   handshake: 'M8 12l3-3 4 4M3 13l5 5 3-3M21 13l-5 5-3-3M7 9h4l2-2h4l4 4',
   compass: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM15 9l-2 5-5 2 2-5z',
@@ -329,7 +422,7 @@ const iconPaths = {
   bolt: 'M13 2L4 14h7l-1 8 9-12h-7z',
   person: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0',
   phone: 'M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4c0 1-1 2-2 2A16 16 0 0 1 3 6c0-1 1-2 2-2z',
-  location: 'M12 21s7-5 7-11a7 7 0 1 0-14 0c0 6 7 11 7 11zM12 10a2 2 0 1 0 0-.1',
+  location: 'M12 21s7-4.8 7-11a7 7 0 1 0-14 0c0 6.2 7 11 7 11zM12 10a2.4 2.4 0 1 0 0-.1',
   search: 'M10 18a8 8 0 1 1 5.7-2.3L21 21',
   mail: 'M4 6h16v12H4zM4 7l8 6 8-6',
   arrow: 'M5 12h14M13 6l6 6-6 6',
@@ -344,6 +437,10 @@ function Icon({ name, size = 22 }) {
       <path d={iconPaths[name]} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
+}
+
+function LocationPinImage({ compact = false }) {
+  return <img className={compact ? 'location-pin-img compact' : 'location-pin-img'} src={ASSETS.locationPin} alt="" aria-hidden="true" />;
 }
 
 function App() {
@@ -699,6 +796,8 @@ function ApplyForm({ t, lang }) {
   const [status, setStatus] = useState({ type: '', message: '' });
   const [busy, setBusy] = useState(false);
   const [detectedLocation, setDetectedLocation] = useState('');
+  const otherJobLabel = t.apply.jobs[t.apply.jobs.length - 1];
+  const showDescription = fields.suggestedJob === otherJobLabel;
 
   const submit = async (event) => {
     event.preventDefault();
@@ -724,7 +823,12 @@ function ApplyForm({ t, lang }) {
         setDetectedLocation={setDetectedLocation}
         onChange={(value) => setFields({ ...fields, location: cleanLocation(value) })}
       />
-      <LabeledInput label={t.apply.search} icon="search" suffix="mic" value={fields.roleSearch} placeholder={t.apply.placeholders.search} onChange={(value) => setFields({ ...fields, roleSearch: cleanText(value) })} />
+      <JobRoleSearch
+        label={t.apply.search}
+        value={fields.roleSearch}
+        placeholder={t.apply.placeholders.search}
+        onChange={(value) => setFields({ ...fields, roleSearch: cleanJobRole(value) })}
+      />
       <div className="suggested-block">
         <label>{t.apply.suggested}</label>
         <div className="job-chips">
@@ -733,7 +837,12 @@ function ApplyForm({ t, lang }) {
               className={fields.suggestedJob === job ? 'chip selected' : 'chip'}
               key={job}
               type="button"
-              onClick={() => setFields({ ...fields, suggestedJob: job })}
+              onClick={() => setFields({
+                ...fields,
+                roleSearch: job,
+                suggestedJob: job,
+                description: job === otherJobLabel ? fields.description : ''
+              })}
             >
               <Icon name={['settings', 'bolt', 'chart', 'person', 'building', 'monitor', 'sliders'][index]} size={16} />
               {job}
@@ -741,10 +850,54 @@ function ApplyForm({ t, lang }) {
           ))}
         </div>
       </div>
-      <textarea value={fields.description} placeholder={t.apply.description} onChange={(event) => setFields({ ...fields, description: event.target.value })} />
+      {showDescription && (
+        <textarea value={fields.description} placeholder={t.apply.description} onChange={(event) => setFields({ ...fields, description: event.target.value })} />
+      )}
       <button className="gold-button apply-submit" type="submit" disabled={busy}>{busy ? '...' : t.apply.submit}</button>
       <StatusMessage status={status} />
     </form>
+  );
+}
+
+function JobRoleSearch({ label, value, placeholder, onChange }) {
+  const [open, setOpen] = useState(false);
+  const query = value.trim().toLowerCase();
+  const matches = jobRoles.filter((role) => role.toLowerCase().includes(query));
+  const suggestions = query ? matches : jobRoles;
+
+  const chooseRole = (role) => {
+    onChange(role);
+    setOpen(false);
+  };
+
+  return (
+    <label className="field-label role-field">
+      <span>{label}</span>
+      <div className="input-wrap">
+        <Icon name="search" size={18} />
+        <input
+          value={value}
+          placeholder={placeholder}
+          autoComplete="off"
+          onChange={(event) => {
+            onChange(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => window.setTimeout(() => setOpen(false), 140)}
+        />
+        <Icon name="mic" size={18} />
+      </div>
+      {open && suggestions.length > 0 && (
+        <div className="role-menu">
+          {suggestions.map((role) => (
+            <button type="button" key={role} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseRole(role)}>
+              {role}
+            </button>
+          ))}
+        </div>
+      )}
+    </label>
   );
 }
 
@@ -797,7 +950,7 @@ function LocationInput({ label, value, placeholder, detectedLocation, setDetecte
     <label className="field-label location-field">
       <span>{label}</span>
       <div className="input-wrap">
-        <Icon name="location" size={20} />
+        <LocationPinImage />
         <input
           value={value}
           placeholder={placeholder}
@@ -809,19 +962,16 @@ function LocationInput({ label, value, placeholder, detectedLocation, setDetecte
           onFocus={() => setOpen(true)}
           onBlur={() => window.setTimeout(() => setOpen(false), 140)}
         />
-        <button className="detect-location" type="button" onMouseDown={(event) => event.preventDefault()} onClick={detectLocation} aria-label="Detect current location">
-          {detecting ? '...' : <Icon name="location" size={17} />}
-        </button>
       </div>
       {open && (
         <div className="location-menu">
           <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={detectLocation}>
-            <Icon name="location" size={17} />
+            <LocationPinImage compact />
             {detecting ? 'Detecting location...' : 'Use my current location'}
           </button>
           {suggestions.map((location) => (
             <button type="button" key={location} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseLocation(location)}>
-              <Icon name="location" size={17} />
+              <LocationPinImage compact />
               {location}
             </button>
           ))}
@@ -832,7 +982,7 @@ function LocationInput({ label, value, placeholder, detectedLocation, setDetecte
 }
 
 function EmployeeModal({ t, lang, closeModal }) {
-  const initial = { fullName: '', mobile: '', jobType: '', employeeCount: '' };
+  const initial = { companyName: '', mobile: '', jobType: '', employeeCount: '' };
   const [fields, setFields] = useState(initial);
   const [status, setStatus] = useState({ type: '', message: '' });
   const [busy, setBusy] = useState(false);
@@ -879,9 +1029,9 @@ function EmployeeModal({ t, lang, closeModal }) {
         <h2 id="employees-title">{t.employees.title}</h2>
         <p>{t.employees.subtitle}</p>
         <div className="form-two">
-          <LabeledInput label={t.employees.fullName} icon="person" value={fields.fullName} placeholder={t.employees.placeholders.name} onChange={(value) => setFields({ ...fields, fullName: cleanText(value) })} />
+          <LabeledInput label={t.employees.companyName} icon="company" value={fields.companyName} placeholder={t.employees.placeholders.companyName} onChange={(value) => setFields({ ...fields, companyName: cleanCompany(value) })} />
           <LabeledInput label={t.employees.mobile} icon="phone" value={fields.mobile} inputMode="numeric" maxLength={10} placeholder={t.employees.placeholders.mobile} onChange={(value) => setFields({ ...fields, mobile: cleanDigits(value, 10) })} />
-          <LabeledInput label={t.employees.jobType} icon="file" value={fields.jobType} placeholder={t.employees.placeholders.jobType} onChange={(value) => setFields({ ...fields, jobType: cleanText(value) })} />
+          <LabeledInput label={t.employees.jobType} icon="file" value={fields.jobType} placeholder={t.employees.placeholders.jobType} onChange={(value) => setFields({ ...fields, jobType: cleanJobRole(value) })} />
           <LabeledInput label={t.employees.employeeCount} icon="users" value={fields.employeeCount} inputMode="numeric" maxLength={3} placeholder={t.employees.placeholders.employeeCount} onChange={(value) => setFields({ ...fields, employeeCount: cleanDigits(value, 3) })} />
         </div>
         <div className="modal-actions">
@@ -970,6 +1120,14 @@ function cleanText(value) {
   return value.replace(/[^\p{L}\s.'-]/gu, '');
 }
 
+function cleanCompany(value) {
+  return value.replace(/[^\p{L}\p{N}\s.&,'()/-]/gu, '');
+}
+
+function cleanJobRole(value) {
+  return value.replace(/[^\p{L}\p{N}\s.&,'()/+-]/gu, '');
+}
+
 function cleanLocation(value) {
   return value.replace(/[^\p{L}\p{N}\s.,'/-]/gu, '');
 }
@@ -980,6 +1138,14 @@ function hasRequired(values) {
 
 function isText(value) {
   return /^[\p{L}\s.'-]+$/u.test(String(value || '').trim());
+}
+
+function isCompany(value) {
+  return /^[\p{L}\p{N}\s.&,'()/-]+$/u.test(String(value || '').trim());
+}
+
+function isJobRole(value) {
+  return /^[\p{L}\p{N}\s.&,'()/+-]+$/u.test(String(value || '').trim());
 }
 
 function isPhone(value) {
@@ -1005,15 +1171,18 @@ function validateContactFields(fields, t) {
 }
 
 function validateApplyFields(fields, t) {
-  if (!hasRequired([fields.fullName, fields.mobile, fields.location, fields.description])) return t.form.required;
-  if (!isText(fields.fullName) || (fields.roleSearch && !isText(fields.roleSearch))) return t.form.invalidText;
+  const otherJobLabel = t.apply.jobs[t.apply.jobs.length - 1];
+  const requiresDescription = fields.suggestedJob === otherJobLabel;
+  if (!hasRequired([fields.fullName, fields.mobile, fields.location, fields.roleSearch])) return t.form.required;
+  if (requiresDescription && !hasRequired([fields.description])) return t.form.required;
+  if (!isText(fields.fullName) || !isJobRole(fields.roleSearch)) return t.form.invalidText;
   if (!isPhone(fields.mobile)) return t.form.invalidPhone;
   return '';
 }
 
 function validateEmployeeFields(fields, t) {
-  if (!hasRequired([fields.fullName, fields.mobile, fields.jobType, fields.employeeCount])) return t.form.required;
-  if (!isText(fields.fullName) || !isText(fields.jobType)) return t.form.invalidText;
+  if (!hasRequired([fields.companyName, fields.mobile, fields.jobType, fields.employeeCount])) return t.form.required;
+  if (!isCompany(fields.companyName) || !isJobRole(fields.jobType)) return t.form.invalidText;
   if (!isPhone(fields.mobile)) return t.form.invalidPhone;
   if (!isEmployeeCount(fields.employeeCount)) return t.form.invalidEmployeeCount;
   return '';
