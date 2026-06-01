@@ -13,6 +13,11 @@ const SHEET_TABS = {
   }
 };
 
+const SUBMISSION_LOG_SHEET = {
+  name: 'Submission Logs',
+  headers: ['Timestamp', 'Status', 'Form Type', 'Error', 'Raw Payload']
+};
+
 function doGet() {
   return jsonResponse({ ok: true, message: 'SN Infratech form endpoint is running.' });
 }
