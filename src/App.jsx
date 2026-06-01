@@ -5,6 +5,10 @@ const ASSETS = {
   logo: '/assets/sn-logo.png',
   about: '/assets/about-business.png',
   founder: '/assets/founder-placeholder.jpg',
+  founders: {
+    satyanarayan: '/assets/cofounder-satyanarayan-mishra.jpeg',
+    shrutikala: '/assets/cofounder-shrutikala-mishra.jpeg'
+  },
   locationPin: '/assets/location-pin.png'
 };
 
@@ -193,8 +197,8 @@ const copy = {
     leadership: {
       title: 'Co-Founders',
       people: [
-        ['Satyanarayan Mishra', 'Co-Founder & Managing Director'],
-        ['Shrutikala Mishra', 'Co-Founder & Director']
+        ['Satyanarayan Mishra', 'Co-Founder & Managing Director', 'satyanarayan'],
+        ['Shrutikala Mishra', 'Co-Founder & Director', 'shrutikala']
       ]
     },
     contact: {
@@ -329,8 +333,8 @@ const copy = {
     leadership: {
       title: 'सह-संस्थापक',
       people: [
-        ['सत्यनारायण मिश्रा', 'सह-संस्थापक और प्रबंध निदेशक'],
-        ['श्रुतिकला मिश्रा', 'सह-संस्थापक और निदेशक']
+        ['सत्यनारायण मिश्रा', 'सह-संस्थापक और प्रबंध निदेशक', 'satyanarayan'],
+        ['श्रुतिकला मिश्रा', 'सह-संस्थापक और निदेशक', 'shrutikala']
       ]
     },
     contact: {
@@ -704,10 +708,10 @@ function LeadershipSection({ t }) {
       <div className="container">
         <SectionTitle>{t.leadership.title}</SectionTitle>
         <div className="leader-grid">
-          {t.leadership.people.map(([name, role]) => (
+          {t.leadership.people.map(([name, role, imageKey]) => (
             <article className="leader-card" key={name}>
-              <div className="leader-image">
-                <img src={ASSETS.founder} alt="" />
+              <div className={`leader-image leader-image-${imageKey}`}>
+                <img src={ASSETS.founders[imageKey] || ASSETS.founder} alt={name} />
               </div>
               <h3>{name}</h3>
               <p>{role}</p>
@@ -1190,6 +1194,27 @@ function validateEmployeeFields(fields, t) {
 
 async function submitForm({ formType, fields, lang, t, setStatus, setBusy, onSuccess }) {
   const endpoint = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
+  const submissionFields = formType === 'employees'
+    ? {
+        ...fields,
+        fullName: fields.companyName,
+        name: fields.companyName
+      }
+    : fields;
+  const employeePayload = formType === 'employees'
+    ? {
+        companyName: fields.companyName,
+        companyNameValue: fields.companyName,
+        company: fields.companyName,
+        company_name: fields.companyName,
+        fullName: fields.companyName,
+        name: fields.companyName,
+        'Company Name': fields.companyName,
+        mobile: fields.mobile,
+        jobType: fields.jobType,
+        employeeCount: fields.employeeCount
+      }
+    : {};
 
   if (!endpoint) {
     setStatus({ type: 'error', message: t.form.missingUrl });
@@ -1207,7 +1232,8 @@ async function submitForm({ formType, fields, lang, t, setStatus, setBusy, onSuc
       body: JSON.stringify({
         formType,
         language: lang,
-        fields,
+        fields: submissionFields,
+        ...employeePayload,
         submittedAt: new Date().toISOString()
       })
     });

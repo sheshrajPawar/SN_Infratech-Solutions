@@ -9,7 +9,7 @@ const SHEET_TABS = {
   },
   employees: {
     name: 'Request Employees',
-    headers: ['Timestamp', 'Source Form', 'Language', 'Company Name', 'Mobile', 'Job Type', 'Number of Employees']
+    headers: ['Timestamp', 'Language', 'Company Name', 'Mobile', 'Job Type', 'Number of Employees']
   }
 };
 
@@ -28,6 +28,8 @@ function setupSheets() {
     const sheet = getOrCreateSheet_(config.name, config.headers);
     applySheetValidation_(sheet, key);
   });
+  migrateRequestEmployeesSheet_();
+  getOrCreateSheet_(SUBMISSION_LOG_SHEET.name, SUBMISSION_LOG_SHEET.headers);
 }
 
 function testContactSubmission() {
@@ -48,23 +50,53 @@ function testContactSubmission() {
   sheet.appendRow(buildRow_(payload.formType, payload.language, payload.fields));
 }
 
+function testEmployeeSubmission() {
+  const payload = {
+    formType: 'employees',
+    language: 'en',
+    fields: {
+      companyName: 'Demo Company',
+      mobile: '9999999999',
+      jobType: 'Sales and marketing',
+      employeeCount: '12'
+    }
+  };
+
+  const config = SHEET_TABS[payload.formType];
+  validatePayload_(payload.formType, payload.fields);
+  const sheet = getOrCreateSheet_(config.name, config.headers);
+  migrateRequestEmployeesSheet_();
+  sheet.appendRow(buildRow_(payload.formType, payload.language, payload.fields));
+}
+
 function doPost(e) {
+  let rawPayload = '';
+  let formType = 'unknown';
+
   try {
-    const payload = JSON.parse(e.postData.contents || '{}');
-    const config = SHEET_TABS[payload.formType];
+    rawPayload = e && e.postData ? e.postData.contents || '' : '';
+    const payload = JSON.parse(rawPayload || '{}');
+    formType = payload.formType || 'unknown';
+    const config = SHEET_TABS[formType];
 
     if (!config) {
-      throw new Error('Unknown formType: ' + payload.formType);
+      throw new Error('Unknown formType: ' + formType);
     }
 
     const sheet = getOrCreateSheet_(config.name, config.headers);
-    const fields = payload.fields || {};
-    validatePayload_(payload.formType, fields);
-    const row = buildRow_(payload.formType, payload.language || 'en', fields);
+    if (formType === 'employees') {
+      migrateRequestEmployeesSheet_();
+    }
+
+    const fields = normalizePayloadFields_(formType, payload);
+    validatePayload_(formType, fields);
+    const row = buildRow_(formType, payload.language || 'en', fields);
     sheet.appendRow(row);
+    logSubmission_('success', formType, '', rawPayload);
 
     return jsonResponse({ ok: true });
   } catch (error) {
+    logSubmission_('error', formType, error.message, rawPayload);
     return jsonResponse({ ok: false, error: error.message });
   }
 }
@@ -88,22 +120,63 @@ function getOrCreateSheet_(sheetName, headers) {
 
 function applySheetValidation_(sheet, formType) {
   const maxRows = Math.max(sheet.getMaxRows() - 1, 1);
+  sheet.getRange(2, 1, maxRows, sheet.getMaxColumns()).clearDataValidations();
+}
 
-  if (formType === 'contact') {
-    setTextValidation_(sheet, 3, maxRows);
-    setPhoneValidation_(sheet, 4, maxRows);
-    setEmailValidation_(sheet, 5, maxRows);
-    return;
+function migrateRequestEmployeesSheet_() {
+  const config = SHEET_TABS.employees;
+  const sheet = getOrCreateSheet_(config.name, config.headers);
+  sheet.getRange(1, 1, 1, config.headers.length).setValues([config.headers]);
+}
+
+function normalizePayloadFields_(formType, payload) {
+  const fields = payload.fields || {};
+
+  if (formType !== 'employees') {
+    return fields;
   }
 
-  if (formType === 'apply') {
-    setTextValidation_(sheet, 4, maxRows);
-    setPhoneValidation_(sheet, 5, maxRows);
-    return;
+  return {
+    companyName: firstValue_(
+      fields.companyName,
+      fields.companyNameValue,
+      fields.company,
+      fields.company_name,
+      fields.companyname,
+      fields.businessName,
+      fields.organizationName,
+      fields.organisationName,
+      fields['Company Name'],
+      fields.fullName,
+      fields.name,
+      fields.full_name,
+      payload.companyName,
+      payload.companyNameValue,
+      payload.company,
+      payload.company_name,
+      payload.businessName,
+      payload.organizationName,
+      payload.organisationName,
+      payload.fullName,
+      payload.name,
+      payload.full_name,
+      payload['Company Name']
+    ),
+    mobile: firstValue_(fields.mobile, fields.mobileNumber, fields.phone, payload.mobile, payload.mobileNumber, payload.phone),
+    jobType: firstValue_(fields.jobType, fields.typeOfJobs, fields.typeOfJob, fields['Type of Jobs'], payload.jobType, payload.typeOfJobs, payload.typeOfJob),
+    employeeCount: firstValue_(fields.employeeCount, fields.numberOfEmployees, fields.noOfEmployee, fields['No. of employee'], payload.employeeCount, payload.numberOfEmployees, payload.noOfEmployee)
+  };
+}
+
+function firstValue_() {
+  for (let index = 0; index < arguments.length; index += 1) {
+    const value = arguments[index];
+    if (String(value || '').trim()) {
+      return value;
+    }
   }
 
-  setPhoneValidation_(sheet, 5, maxRows);
-  setEmployeeCountValidation_(sheet, 7, maxRows);
+  return '';
 }
 
 function setTextValidation_(sheet, column, maxRows) {
@@ -185,11 +258,19 @@ function validatePayload_(formType, fields) {
     return;
   }
 
-  requireFields_(fields, ['companyName', 'mobile', 'jobType', 'employeeCount']);
-  requireGeneralText_(fields.companyName, 'Company name');
+  const companyName = fields.companyName;
+  const jobType = fields.jobType;
+  const employeeCount = fields.employeeCount;
+
+  if (!String(companyName || '').trim()) {
+    throw new Error('Company name is required.');
+  }
+
+  requireFields_({ mobile: fields.mobile, jobType: jobType, employeeCount: employeeCount }, ['mobile', 'jobType', 'employeeCount']);
+  requireGeneralText_(companyName, 'Company name');
   requirePhone_(fields.mobile);
-  requireGeneralText_(fields.jobType, 'Job type');
-  requireEmployeeCount_(fields.employeeCount);
+  requireGeneralText_(jobType, 'Job type');
+  requireEmployeeCount_(employeeCount);
 }
 
 function requireFields_(fields, keys) {
@@ -260,13 +341,17 @@ function buildRow_(formType, language, fields) {
 
   return [
     timestamp,
-    'Find Employees / Request for Employees',
     language,
-    fields.companyName || '',
+    fields.companyName || fields.fullName || '',
     fields.mobile || '',
     fields.jobType || '',
     Number(fields.employeeCount || 0)
   ];
+}
+
+function logSubmission_(status, formType, error, rawPayload) {
+  const sheet = getOrCreateSheet_(SUBMISSION_LOG_SHEET.name, SUBMISSION_LOG_SHEET.headers);
+  sheet.appendRow([new Date(), status, formType, error || '', rawPayload || '']);
 }
 
 function jsonResponse(data) {
