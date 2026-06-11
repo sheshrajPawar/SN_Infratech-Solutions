@@ -1,16 +1,17 @@
-name: Build and Deploy Airbeds to Cloud Run
+name: Build and Deploy SN Infratech Solutions
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
-  PROJECT_ID: project-69cf9117-10eb-4c9f-a2e
-  REGION: asia-southeast1
-  BACKEND_SERVICE: airbeds-backend
-  FRONTEND_SERVICE: airbeds-frontend
-  ARTIFACT_REPO: airbeds-repo
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'sn-infratech-solutions-website' }}
+  REGION: ${{ vars.GCP_REGION || 'asia-south1' }}
+  SERVICE: ${{ vars.CLOUD_RUN_SERVICE || 'sn-infratech-solutions' }}
+  ARTIFACT_REPO: ${{ vars.ARTIFACT_REPO || 'sn-infratech-website' }}
+  IMAGE_NAME: sn-infratech-solutions
 
 jobs:
   deploy:
@@ -18,11 +19,34 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write
+
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate deployment secrets
+        run: |
+          missing=()
+
+          if [ -z "${GCP_CREDENTIALS}" ]; then
+            missing+=("GCP_CREDENTIALS")
+          fi
+
+          if [ -z "${VITE_GOOGLE_SCRIPT_URL}" ]; then
+            missing+=("VITE_GOOGLE_SCRIPT_URL")
+          fi
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Set these repository secrets (Settings -> Secrets and variables -> Actions): ${missing[*]}"
+            exit 1
+          fi
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+          VITE_GOOGLE_SCRIPT_URL: ${{ secrets.VITE_GOOGLE_SCRIPT_URL }}
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -32,109 +56,47 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Ensure Artifact Registry repository exists
+        run: |
+          gcloud artifacts repositories describe "${ARTIFACT_REPO}" \
+            --project="${PROJECT_ID}" \
+            --location="${REGION}" >/dev/null 2>&1 || \
+          gcloud artifacts repositories create "${ARTIFACT_REPO}" \
+            --project="${PROJECT_ID}" \
+            --repository-format=docker \
+            --location="${REGION}" \
+            --description="Docker images for SN Infratech Solutions"
+
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
 
-      - name: Build and push backend image
+      - name: Build and push image
         run: |
-          TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/backend:${{ github.sha }}"
-          docker build -t "${TAG}" -f backend/Dockerfile backend/
-          docker push "${TAG}"
+          IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${IMAGE_NAME}"
+          SHA_TAG="${IMAGE_URI}:${GITHUB_SHA}"
+          LATEST_TAG="${IMAGE_URI}:latest"
 
-      - name: Write backend Cloud Run env file
-        run: |
-          python3 << 'PY'
-          import json
-          import os
-          import sys
-
-          # Values from GitHub repository secrets (same names as backend/.env).
-          keys = (
-              "MONGO_URL",
-              "DB_NAME",
-              "JWT_SECRET",
-              "JWT_ALGORITHM",
-              "JWT_EXPIRATION_HOURS",
-              "APP_ORIGINS",
-              "APP_ADMIN_USERNAME",
-              "APP_ADMIN_PASSWORD",
-              "APP_ADMIN_NAME",
-              "SMTP_HOST",
-              "SMTP_PORT",
-              "SMTP_USER",
-              "SMTP_PASSWORD",
-              "SMTP_FROM_EMAIL",
-              "SMTP_FROM_NAME",
-          )
-          envs = {k: os.environ[k].strip() for k in keys if os.environ.get(k, "").strip()}
-
-          required = ("MONGO_URL", "DB_NAME", "JWT_SECRET")
-          missing = [k for k in required if k not in envs]
-          if missing:
-              print(
-                  "::error::Set these repository secrets (Settings → Secrets and variables → Actions): "
-                  + ", ".join(missing),
-                  file=sys.stderr,
-              )
-              sys.exit(1)
-
-          with open("/tmp/backend-env.json", "w", encoding="utf-8") as f:
-              json.dump(envs, f, indent=2)
-          PY
-        env:
-          MONGO_URL: ${{ secrets.MONGO_URL }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
-          JWT_EXPIRATION_HOURS: ${{ secrets.JWT_EXPIRATION_HOURS }}
-          APP_ORIGINS: ${{ secrets.APP_ORIGINS }}
-          APP_ADMIN_USERNAME: ${{ secrets.APP_ADMIN_USERNAME }}
-          APP_ADMIN_PASSWORD: ${{ secrets.APP_ADMIN_PASSWORD }}
-          APP_ADMIN_NAME: ${{ secrets.APP_ADMIN_NAME }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL }}
-          SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
-
-      - id: deploy-backend
-        name: Deploy backend to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ env.BACKEND_SERVICE }}
-          region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/backend:${{ github.sha }}
-          timeout: 3600
-          flags: --env-vars-file=/tmp/backend-env.json
-
-      - name: Build and push frontend image
-        run: |
-          VITE_BACKEND_URL="${{ secrets.VITE_BACKEND_URL }}"
-          VITE_BACKEND_URL="${VITE_BACKEND_URL%/}"
-          if [ -z "${VITE_BACKEND_URL}" ]; then
-            echo "::error::Set the VITE_BACKEND_URL repository secret (same name as frontend/.env, e.g. https://airbeds-backend-....run.app)."
-            exit 1
-          fi
-
-          TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/frontend:${{ github.sha }}"
           docker build \
-            --build-arg "VITE_BACKEND_URL=${VITE_BACKEND_URL}" \
-            -t "${TAG}" \
-            -f frontend/Dockerfile \
-            frontend/
-          docker push "${TAG}"
+            --build-arg "VITE_GOOGLE_SCRIPT_URL=${VITE_GOOGLE_SCRIPT_URL}" \
+            -t "${SHA_TAG}" \
+            -t "${LATEST_TAG}" \
+            .
 
-      - id: deploy-frontend
-        name: Deploy frontend to Cloud Run
+          docker push "${SHA_TAG}"
+          docker push "${LATEST_TAG}"
+        env:
+          VITE_GOOGLE_SCRIPT_URL: ${{ secrets.VITE_GOOGLE_SCRIPT_URL }}
+
+      - id: deploy
+        name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ env.FRONTEND_SERVICE }}
+          service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/frontend:${{ github.sha }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           timeout: 3600
+          flags: --project=${{ env.PROJECT_ID }} --port=8080 --allow-unauthenticated
 
-      - name: Deployment URLs
+      - name: Deployment URL
         run: |
-          echo "Backend:  ${{ steps.deploy-backend.outputs.url }}"
-          echo "Frontend: ${{ steps.deploy-frontend.outputs.url }}"
+          echo "Website: ${{ steps.deploy.outputs.url }}"
