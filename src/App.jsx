@@ -179,7 +179,7 @@ const copy = {
         ['Performance & talent management', 'Talent Management • KPI Design • Leadership Development'],
         ['Monitoring & Reporting', 'Vendor Coordination • Project Reporting • Milestone Tracking']
       ],
-      chooseTitle: 'Why Choose Us ?',
+      chooseTitle: 'Why Choose Us?',
       choose: [
         'Experienced professionals with industry insight',
         'Customized, scalable solutions',
@@ -315,7 +315,7 @@ const copy = {
         ['प्रदर्शन और प्रतिभा प्रबंधन', 'प्रतिभा प्रबंधन • KPI डिजाइन • नेतृत्व विकास'],
         ['निगरानी और रिपोर्टिंग', 'वेंडर समन्वय • परियोजना रिपोर्टिंग • माइलस्टोन ट्रैकिंग']
       ],
-      chooseTitle: 'हमें क्यों चुनें ?',
+      chooseTitle: 'हमें क्यों चुनें?',
       choose: [
         'उद्योग समझ वाले अनुभवी पेशेवर',
         'कस्टमाइज्ड और स्केलेबल समाधान',
@@ -511,18 +511,30 @@ function Header({ t, lang, setLang, navigate, scrollTo, openModal }) {
     scrollTo(id);
   };
 
+  const handleEmployeeClick = () => {
+    setMenuOpen(false);
+    openModal();
+  };
+
   return (
     <header className="site-header">
       <div className="header-shell">
         <button className="brand" type="button" onClick={() => handleNav('home')} aria-label="SN Infratech Solutions home">
           <img src={ASSETS.logo} alt="SN Infratech Solutions" />
         </button>
-        <button className="menu-toggle" type="button" onClick={() => setMenuOpen((value) => !value)} aria-label="Toggle menu">
+        <button
+          className="menu-toggle"
+          type="button"
+          onClick={() => setMenuOpen((value) => !value)}
+          aria-label="Toggle menu"
+          aria-controls="primary-navigation"
+          aria-expanded={menuOpen}
+        >
           <span />
           <span />
           <span />
         </button>
-        <nav className={menuOpen ? 'nav open' : 'nav'}>
+        <nav id="primary-navigation" className={menuOpen ? 'nav open' : 'nav'}>
           {navItems.map(([id, label]) => (
             <button type="button" key={id} onClick={() => handleNav(id)}>
               {label}
@@ -532,7 +544,7 @@ function Header({ t, lang, setLang, navigate, scrollTo, openModal }) {
             <option value="en">Eng</option>
             <option value="hi">Hindi</option>
           </select>
-          <button className="primary-nav" type="button" onClick={openModal}>
+          <button className="primary-nav" type="button" onClick={handleEmployeeClick}>
             {t.nav.findEmployees}
             <Icon name="arrow" size={18} />
           </button>
@@ -1076,10 +1088,10 @@ function Footer({ t, scrollTo }) {
             <button key={`${id}-${index}`} type="button" onClick={() => scrollTo(id)}>{label}</button>
           ))}
         </div>
-        <div>
-          <p><Icon name="location" size={20} />{t.footer.location}</p>
-          <p><Icon name="mail" size={20} />Inquiry@sninfratechsolution.com</p>
-          <p><Icon name="phone" size={20} />8123318937, 8197989279, 7978038274</p>
+        <div className="footer-contact">
+          <p><Icon name="location" size={20} /><span>{t.footer.location}</span></p>
+          <p><Icon name="mail" size={20} /><span>Inquiry@sninfratechsolution.com</span></p>
+          <p><Icon name="phone" size={20} /><span>8123318937, 8197989279, 7978038274</span></p>
         </div>
       </div>
       <div className="container footer-bottom">
