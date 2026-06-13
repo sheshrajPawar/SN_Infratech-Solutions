@@ -10,7 +10,7 @@ env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'sn-infratech-solutions-website' }}
   REGION: ${{ vars.GCP_REGION || 'asia-southeast1' }}
   SERVICE: ${{ vars.CLOUD_RUN_SERVICE || 'sn-infratech-solutions' }}
-  ARTIFACT_REPO: ${{ vars.ARTIFACT_REPO || 'sn-infratech-website' }}
+  ARTIFACT_REPO: ${{ vars.ARTIFACT_REPO || 'sn-infratech-repo' }}
   IMAGE_NAME: sn-infratech-solutions
 
 jobs:
