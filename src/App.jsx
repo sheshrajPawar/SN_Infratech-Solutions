@@ -204,7 +204,7 @@ const copy = {
     contact: {
       title: 'Contact Us',
       office: 'Registered Office Address:',
-      phone: 'Phone: 8123318937, 8197989279, 7978038274',
+      phone: 'Phone: 8197989279, 7848828252, 7978038274',
       email: 'Email: Inquiry@sninfratechsolution.com',
       formTitle: 'Connect with us',
       name: 'Enter your name',
@@ -340,7 +340,7 @@ const copy = {
     contact: {
       title: 'संपर्क करें',
       office: 'पंजीकृत कार्यालय पता:',
-      phone: 'फोन: 8123318937, 8197989279, 7978038274',
+      phone: 'फोन: 8197989279, 7848828252, 7978038274',
       email: 'ईमेल: Inquiry@sninfratechsolution.com',
       formTitle: 'हमसे जुड़ें',
       name: 'अपना नाम दर्ज करें',
