@@ -1091,7 +1091,7 @@ function Footer({ t, scrollTo }) {
         <div className="footer-contact">
           <p><Icon name="location" size={20} /><span>{t.footer.location}</span></p>
           <p><Icon name="mail" size={20} /><span>Inquiry@sninfratechsolution.com</span></p>
-          <p><Icon name="phone" size={20} /><span>8123318937, 8197989279, 7978038274</span></p>
+          <p><Icon name="phone" size={20} /><span>8197989279, 7848828252, 7978038274</span></p>
         </div>
       </div>
       <div className="container footer-bottom">
