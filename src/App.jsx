@@ -6,8 +6,7 @@ const ASSETS = {
   about: '/assets/about-business.png',
   founder: '/assets/founder-placeholder.jpg',
   founders: {
-    satyanarayan: '/assets/cofounder-satyanarayan-mishra.jpeg',
-    shrutikala: '/assets/cofounder-shrutikala-mishra.jpeg'
+    prabhudatta: '/assets/founder-prabhudatta-bhatta.jpeg'
   },
   locationPin: '/assets/location-pin.png'
 };
@@ -195,10 +194,9 @@ const copy = {
       clients: ['Wika', 'Crompton', 'Schneider Electric', 'Polycab', 'Blue Star', 'Finolex', 'Benince', 'Fixon', 'Loctite', 'Havels', 'Anchor', 'Panasonic', 'Siemens']
     },
     leadership: {
-      title: 'Co-Founders',
+      title: 'Founder & Co-Founder',
       people: [
-        ['Satyanarayan Mishra', 'Co-Founder & Managing Director', 'satyanarayan'],
-        ['Shrutikala Mishra', 'Co-Founder & Director', 'shrutikala']
+        ['Prabhudatta bhatta', 'Founder & Co-Founder', 'prabhudatta']
       ]
     },
     contact: {
@@ -331,10 +329,9 @@ const copy = {
       clients: ['Wika', 'Crompton', 'Schneider Electric', 'Polycab', 'Blue Star', 'Finolex', 'Benince', 'Fixon', 'Loctite', 'Havels', 'Anchor', 'Panasonic', 'Siemens']
     },
     leadership: {
-      title: 'सह-संस्थापक',
+      title: 'संस्थापक और सह-संस्थापक',
       people: [
-        ['सत्यनारायण मिश्रा', 'सह-संस्थापक और प्रबंध निदेशक', 'satyanarayan'],
-        ['श्रुतिकला मिश्रा', 'सह-संस्थापक और निदेशक', 'shrutikala']
+        ['Prabhudatta bhatta', 'संस्थापक और सह-संस्थापक', 'prabhudatta']
       ]
     },
     contact: {
